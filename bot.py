@@ -115,6 +115,7 @@ def initGame(StageName, Difficulty):
 
 while Games_played < Games_To_Play:
     initGame("stage.png", "easy.png")
+    time.sleep(10)                  # Time for the stage to load
     placeMonke(975, 439, Hero)      # Placed Hero (Numeber 1)
 
     #############################
