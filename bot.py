@@ -3,144 +3,227 @@ from pyautogui import *
 import pyautogui
 import time
 import keyboard
-import random
 import win32api, win32con
 
-Games_played = 0
-Games_To_Play = 2
-INTERVAL = 5
-Wizard = 'a'
-Hero = 'u'
-Sniper = 'z'
-Upgrade1 = '1'
-Upgrade2 = '2'
-Upgrade3 = '3'
+GamesPlayed = 0
+time.sleep(2)
+CenterOfMap = pyautogui.center(
+    pyautogui.locateOnScreen("TestingImage.png", confidence=0.9)
+)
 
-def click(x,y):
-    win32api.SetCursorPos((x,y))
+
+def click(x, y):
+    win32api.SetCursorPos((x, y))
     time.sleep(0.2)
-    win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN,0,0)
+    win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, 0, 0)
     time.sleep(0.02)
-    win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP,0,0)
-    
-    
+    win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, 0, 0)
+
+
+def click(point):
+    win32api.SetCursorPos(point)
+    time.sleep(0.2)
+    win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, 0, 0)
+    time.sleep(0.02)
+    win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, 0, 0)
+
+
+def goTo(point):
+    win32api.SetCursorPos(point)
+    time.sleep(0.2)
+
+
+def getCenter(image, conf=90):
+    return pyautogui.center(pyautogui.locateOnScreen(image, confidence=(conf / 100)))
+
+
+def HeroPos():
+    offset = (198, 198)
+    return (CenterOfMap[0] - offset[0], CenterOfMap[1] - offset[1])
+
+
+def HeliPos():
+    offset = (-71, -343)
+    return (CenterOfMap[0] - offset[0], CenterOfMap[1] - offset[1])
+
+
+def TrashPos():
+    offset = (-162, 98)
+    return (CenterOfMap[0] - offset[0], CenterOfMap[1] - offset[1])
+
+
+def SuperPos():
+    offset = (-141, 87)
+    return (CenterOfMap[0] - offset[0], CenterOfMap[1] - offset[1])
+
+
+def WizardPos():
+    offset = (10, 10)
+    return (CenterOfMap[0] - offset[0], CenterOfMap[1] - offset[1])
+
+
+def removeTrash():
+    goTo(TrashPos())
+    time.sleep(0.5)
+    click(TrashPos())
+    time.sleep(0.5)
+    click(getCenter("TrashConfirm.png", 80))
+
+
+def DotheThing():
+    time.sleep(2)
+    goTo(CenterOfMap)
+    time.sleep(5)
+    var2 = win32api.GetCursorPos()
+    print(var2)
+    print("(", CenterOfMap[0] - var2[0], ",", CenterOfMap[1] - var2[1], ")")
+
+
 def waitTime(timeS):
-    for (i) in range(timeS):
-        if pyautogui.locateOnScreen('level_up.png', confidence= 0.9) != None:
-            var = pyautogui.locateOnScreen('level_up.png', confidence= 0.9)
-            var = pyautogui.center(var)
-            click(var.x,var.y)
-            time.sleep(1)
-            click(var.x,var.y)
+    for i in range(timeS):
+        if pyautogui.locateOnScreen("LevelUp.png", confidence=0.9) != None:
+            var = getCenter("LevelUp.png", 90)
+            click(var)
+            time.sleep(0.8)
+            click(var)
         time.sleep(1.0)
 
-def placeMonke(x,y,key):
+
+def placeMonke(Function, key):
+    time.sleep(0.5)
     keyboard.press_and_release(key)
     time.sleep(0.5)
-    click(x,y)
-
-def upgrade(numUpgrade, x, y):
-    
-    click(x,y) # clicks on the equivalent monkey's position
+    click(Function())
     time.sleep(1)
-    win32api.keybd_event(keyboard.press_and_release)
-    # win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN,0,0)
-    # time.sleep(0.02)
-    # win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP,0,0)
-    pyautogui.press(numUpgrade)
+
+
+def upgrade(numUpgrade, Function, times=1):
+    click(Function())  # clicks on the equivalent monkey's position
+    time.sleep(1)
+    for i in range(times):
+        keyboard.press_and_release(numUpgrade)
+        time.sleep(0.5)
+    keyboard.press_and_release("esc")
     time.sleep(0.5)
-    keyboard.press_and_release('esc')
+
 
 def waitForEnd():
     while True:
-        if pyautogui.locateOnScreen('level_up.png', confidence= 0.9) != None:
-            click(90,500)
+        if pyautogui.locateOnScreen("LevelUp.png", confidence=0.9) != None:
+            var = getCenter("LevelUp.png", 90)
+            click(var)
             time.sleep(0.8)
-            click(92,512)
-        elif pyautogui.locateOnScreen('next.png', confidence= 0.9) != None:
-            var = pyautogui.locateOnScreen('next.png', confidence= 0.9)
-            var = pyautogui.center(var)
-            click(var.x,var.y)
+            click(var)
+        elif pyautogui.locateOnScreen("Next.png", confidence=0.9) != None:
+            click(getCenter("Next.png", 90))
             time.sleep(1)
+            click(getCenter("Home.png", 90))
 
-            var = pyautogui.locateOnScreen('home.png', confidence= 0.9)
-            var = pyautogui.center(var)
-            click(var.x,var.y)
-
+            break
         time.sleep(1.0)
-    
 
 
-def initGame(StageName, Difficulty):
-    print("Open the game and go to the Main Menu! (You have ",INTERVAL," seconds)")
-    i = 0
-    for (i) in range(INTERVAL):
-        print(i+1)
-        time.sleep(1.0)
-    if pyautogui.locateOnScreen('play_button.png', confidence= 0.9) != None:
-        play_button = pyautogui.locateOnScreen('play_button.png', confidence= 0.9)
-        play_button = pyautogui.center(play_button)
-        click(play_button.x,play_button.y)
-        time.sleep(1.0)
-        if pyautogui.locateOnScreen(StageName, confidence= 0.9) != None:
-            stage = pyautogui.locateOnScreen(StageName, confidence= 0.9)
-            stage = pyautogui.center(stage)
-            click(stage.x,stage.y)
-            time.sleep(1.0)
-            if pyautogui.locateOnScreen(Difficulty, confidence= 0.9) != None:
-                var = pyautogui.locateOnScreen(Difficulty, confidence= 0.9)
+def initRound():
+    center = getCenter("initRound.png")
+    click(center)
+    time.sleep(0.2)
+    click(center)
+
+
+def initGame():
+    print("Starting Game ", GamesPlayed + 1)
+    if pyautogui.locateOnScreen("Play.png", confidence=0.9) != None:
+        click(getCenter("Play.png"))
+        time.sleep(2)
+        for i in range(5):
+            if pyautogui.locateOnScreen("Stage.png", confidence=0.9) == None:
+                click(getCenter("NextArrow.png"))
+                time.sleep(0.1)
+        if pyautogui.locateOnScreen("Stage.png", confidence=0.9) != None:
+            click(getCenter("Stage.png"))
+            time.sleep(2)
+            if pyautogui.locateOnScreen("Difficulty.png", confidence=0.9) != None:
+                click(getCenter("Difficulty.png"))
+                time.sleep(2)
+                var = pyautogui.locateOnScreen("Mode.png", confidence=0.9)
                 var = pyautogui.center(var)
-                click(var.x,var.y)
-                time.sleep(1.0)
-                var = pyautogui.locateOnScreen('mode.png', confidence= 0.9)
-                var = pyautogui.center(var)
-                click(var.x,var.y)
-                time.sleep(1.0)
+                click(getCenter("Mode.png"))
+                time.sleep(5.0)
             else:
                 print("ERROR, No Difficulty Found!")
                 exit
         else:
             print("ERROR, No Stage Found!")
             exit
-    else: 
+    else:
         print("ERROR, No Play Button Found!")
         exit
 
-while Games_played < Games_To_Play:
-    #initGame("stage.png", "easy.png")
-    time.sleep(3)                  # Time for the stage to load
-    placeMonke(975, 439, Hero)      # Placed Hero (Numeber 1)
 
-    #############################
-    var = pyautogui.locateOnScreen('initRound.png', confidence= 0.9)
-    var = pyautogui.center(var)
-    click(var.x,var.y)
-    time.sleep(0.2)
-    click(var.x,var.y)
-    
-    #       Starts Round        #
-    #############################
-    waitTime(40)                                    # Waits 40 seconds
-    placeMonke(1000, 215, Sniper)                   # Places Sniper (Numeber 2)
-    waitTime(17)                                    # Waits 17 seconds
-    placeMonke(776, 516, Wizard)                    # Places Wizard (Numeber 3)
-    Wizard = [776, 516]
-    Sniper = [1000, 215]
-    upgrade(Upgrade2 , Wizard[0], Wizard[1])          # Upgrades the second skill of Wizard
-    upgrade(Upgrade3 , Wizard[0], Wizard[1])          # Upgrades the third skill of Wizard
-    waitTime(18)                                    # Waits 18 seconds
-    upgrade(Upgrade3 , Wizard[0], Wizard[1])          # Upgrades the third skill of Wizard
-    waitTime(60)                                    # Waits 60 seconds
-    upgrade(Upgrade2 , Wizard[0], Wizard[1])          # Upgrades the second skill of Wizard
-    waitTime(33)                                    # Waits 33 seconds
-    upgrade(Upgrade3 , Wizard[0], Wizard[1])          # Upgrades the third skill of Wizard
-    waitTime(16)                                    # Waits 16 seconds
-    upgrade(Upgrade1 , Sniper[0], Sniper[1])          # Upgrades the first skill of sniper
-    waitTime(2)                                     # Waits 2 seconds
-    upgrade(Upgrade1 , Sniper[0], Sniper[1])          # Upgrades the first skill of sniper
-    waitTime(5)                                     # Waits 5 seconds
-    upgrade(Upgrade3 , Sniper[0], Sniper[1])          # Upgrades the third skill of sniper
-    waitTime(40)                                    # Waits 40 seconds
-    upgrade(Upgrade3 , Wizard[0], Wizard[1])          # Upgrades the third skill of Wizard
-    waitForEnd()                                    # Waits until the game is finished
+def playGame():
+    initGame()
+    time.sleep(2)
+    if (pyautogui.locateOnScreen("Map.png", confidence=0.9)) != None:
+        CenterOfMap = getCenter("Map.png", 90)
+    else:
+        print("ERROR, No Map Found!")
+        exit
+    placeMonke(HeroPos, "u")
+    initRound()
+    waitTime(120)
+    placeMonke(HeliPos, "b")
+    waitTime(40)
+    upgrade("1", HeliPos, 2)
+    upgrade("2", HeliPos, 2)
+    waitTime(105)
+    removeTrash()
+    waitTime(2)
+    placeMonke(SuperPos, "s")
+    waitTime(35)
+    upgrade("1", SuperPos, 2)
+    upgrade("2", SuperPos, 2)
+    waitTime(120)
+    placeMonke(WizardPos, "a")
+    upgrade("3", WizardPos, 4)
+    upgrade("2", WizardPos, 2)
+    waitTime(20)
+    upgrade("2", SuperPos, 1)
+    waitForEnd()
+
+
+print("Starting Bot in 2 seconds")
+
+while True:
+    initGame()
+    time.sleep(2)
+    if (pyautogui.locateOnScreen("Map.png", confidence=0.9)) != None:
+        CenterOfMap = getCenter("Map.png", 90)
+    else:
+        print("ERROR, No Map Found!")
+        exit
+    placeMonke(HeroPos, "u")
+    initRound()
+    waitTime(120)
+    placeMonke(HeliPos, "b")
+    waitTime(40)
+    upgrade("1", HeliPos, 2)
+    upgrade("2", HeliPos, 2)
+    waitTime(105)
+    removeTrash()
+    placeMonke(SuperPos, "s")
+    waitTime(35)
+    upgrade("1", SuperPos, 2)
+    upgrade("2", SuperPos, 2)
+    waitTime(45)
+    placeMonke(WizardPos, "a")
+    waitTime(10)
+    upgrade("3", WizardPos, 4)
+    upgrade("2", WizardPos, 2)
+    waitTime(20)
+    upgrade("2", SuperPos, 1)
+    waitForEnd()
+    print("Games played: ", (Games_played + 1))
+    print("Money Earned: ", ((Games_played + 1) * 50))
     Games_played = Games_played + 1
+    time.sleep(5)
+print("FINISHED")
